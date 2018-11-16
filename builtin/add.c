@@ -616,6 +616,7 @@ finish:
 		die(_("Unable to write new index file"));
 
 	dir_clear(&dir);
+	enable_fscache(0);
 	UNLEAK(pathspec);
 	return exit_status;
 }

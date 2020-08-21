@@ -241,3 +241,9 @@ Release/
 /git.VC.VC.opendb
 /git.VC.db
 *.dSYM
+*.vcxproj
+*.vcxproj.filters
+/CMakeCache.txt
+/CMakeFiles/
+/*.cmake
+/DartConfiguration.tcl

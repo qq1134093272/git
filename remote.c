@@ -727,7 +727,7 @@ static void query_refspecs_multiple(struct refspec *rs,
 
 		/* Note the reversal of src and dst */
 		if (refspec->pattern) {
-			const char *key = refspec->dst ?: refspec->src;
+			const char *key = refspec->dst ? refspec->dst : refspec->src;
 			const char *value = refspec->src;
 
 			if (match_name_with_pattern(key, needle, value, &expn_name))
@@ -791,7 +791,7 @@ int query_refspecs(struct refspec *rs, struct refspec_item *query)
 
 		/* Note the reversal of src and dst */
 		if (refspec->pattern) {
-			const char *key = refspec->dst ?: refspec->src;
+			const char *key = refspec->dst ? refspec->dst : refspec->src;
 			const char *value = refspec->src;
 
 			if (match_name_with_pattern(key, needle, value, &expn_name))

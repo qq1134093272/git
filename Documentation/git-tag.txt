@@ -377,6 +377,13 @@ $ GIT_COMMITTER_DATE="2006-10-02 10:31" git tag -s v1.0.1
 
 include::date-formats.txt[]
 
+NOTES
+-----
+
+When combining multiple `--contains` and `--no-contains` filters,
+`git tag` shows tags containing at least one of the named `--contains`
+commits and none of the named `--no-contains` commits.
+
 SEE ALSO
 --------
 linkgit:git-check-ref-format[1].

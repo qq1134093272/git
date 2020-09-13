@@ -408,6 +408,13 @@ Note also that multiple copies of an object may be present in the object
 database; in this case, it is undefined which copy's size or delta base
 will be reported.
 
+NOTES
+-----
+
+When combining multiple `--contains` and `--no-contains` filters,
+`git for-each-ref` shows refs containing at least one of the named
+`--contains` commits and none of the named `--no-contains` commits.
+
 SEE ALSO
 --------
 linkgit:git-show-ref[1]

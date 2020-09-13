@@ -370,6 +370,10 @@ serve four related but different purposes:
 - `--no-merged` is used to find branches which are candidates for merging
   into HEAD, since those branches are not fully contained by HEAD.
 
+When combining multiple `--contains` and `--no-contains` filters,
+`git branch` shows branches containing at least one of the named
+`--contains` commits and none of the named `--no-contains` commits.
+
 SEE ALSO
 --------
 linkgit:git-check-ref-format[1],

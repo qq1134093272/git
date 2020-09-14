@@ -2354,7 +2354,7 @@ static int ref_reachable_from_reflog(const struct object_id *r_oid,
  * Check for reachability of a remote-tracking
  * ref in the reflog entries of its local ref.
  */
-void check_reflog_for_ref(struct ref *r_ref)
+static void check_reflog_for_ref(struct ref *r_ref)
 {
 	struct object_id r_oid;
 	struct ref *l_ref = get_local_ref(r_ref->name);

@@ -633,6 +633,11 @@ static int print_one_push_report(struct ref *ref, const char *dest, int count,
 				 "stale info",
 				 report, porcelain, summary_width);
 		break;
+	case REF_STATUS_REJECT_REMOTE_UPDATED:
+		print_ref_status('!', "[rejected]", ref, ref->peer_ref,
+				 "remote ref updated since checkout",
+				 report, porcelain, summary_width);
+		break;
 	case REF_STATUS_REJECT_SHALLOW:
 		print_ref_status('!', "[rejected]", ref, ref->peer_ref,
 				 "new shallow roots not allowed",
@@ -743,6 +748,8 @@ void transport_print_push_status(const char *dest, struct ref *refs,
 			*reject_reasons |= REJECT_FETCH_FIRST;
 		} else if (ref->status == REF_STATUS_REJECT_NEEDS_FORCE) {
 			*reject_reasons |= REJECT_NEEDS_FORCE;
+		} else if (ref->status == REF_STATUS_REJECT_REMOTE_UPDATED) {
+			*reject_reasons |= REJECT_REF_NEEDS_UPDATE;
 		}
 	}
 	free(head);
@@ -1185,6 +1192,7 @@ static int run_pre_push_hook(struct transport *transport,
 		if (!r->peer_ref) continue;
 		if (r->status == REF_STATUS_REJECT_NONFASTFORWARD) continue;
 		if (r->status == REF_STATUS_REJECT_STALE) continue;
+		if (r->status == REF_STATUS_REJECT_REMOTE_UPDATED) continue;
 		if (r->status == REF_STATUS_UPTODATE) continue;
 
 		strbuf_reset(&buf);
@@ -1235,6 +1243,8 @@ int transport_push(struct repository *r,
 		int pretend = flags & TRANSPORT_PUSH_DRY_RUN;
 		int push_ret, ret, err;
 		struct strvec ref_prefixes = STRVEC_INIT;
+		int is_cas = 0;
+		int if_includes = flags & TRANSPORT_PUSH_FORCE_IF_INCLUDES;
 
 		if (check_push_refs(local_refs, rs) < 0)
 			return -1;
@@ -1262,9 +1272,15 @@ int transport_push(struct repository *r,
 
 		if (transport->smart_options &&
 		    transport->smart_options->cas &&
-		    !is_empty_cas(transport->smart_options->cas))
+		    !is_empty_cas(transport->smart_options->cas)) {
+			is_cas = 1;
 			apply_push_cas(transport->smart_options->cas,
 				       transport->remote, remote_refs);
+		}
+
+		/* When "--force-if-includes" is specified. */
+		if (if_includes)
+			apply_push_force_if_includes(remote_refs, is_cas);
 
 		set_ref_status_for_push(remote_refs,
 			flags & TRANSPORT_PUSH_MIRROR,

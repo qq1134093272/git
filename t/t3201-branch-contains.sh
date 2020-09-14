@@ -200,15 +200,78 @@ test_expect_success 'branch --merged with --verbose' '
 	test_i18ncmp expect actual
 '
 
-test_expect_success 'branch --contains combined with --no-contains' '
-	git branch --contains zzz --no-contains topic >actual &&
+# The next series of tests covers multiple filter combinations
+test_expect_success 'set up repo for multiple filter combination tests' '
+	git checkout master &&
+	git branch | grep -v master | xargs git branch -D &&
+	git checkout -b feature_a master &&
+	>feature_a &&
+	git add feature_a &&
+	git commit -m "add feature a" &&
+	git checkout -b feature_b master &&
+	>feature_b &&
+	git add feature_b &&
+	git commit -m "add feature b"
+'
+
+test_expect_success 'multiple branch --contains' '
+	git checkout -b next master &&
+	git merge feature_a &&
+	git branch --contains feature_a --contains feature_b >actual &&
 	cat >expect <<-\EOF &&
-	  master
-	  side
-	  zzz
+	  feature_a
+	  feature_b
+	* next
 	EOF
 	test_cmp expect actual
+'
 
+test_expect_success 'multiple branch --merged' '
+	git branch --merged next --merged master >actual &&
+	cat >expect <<-\EOF &&
+	  feature_a
+	  master
+	* next
+	EOF
+	test_cmp expect actual
+'
+
+test_expect_success 'multiple branch --no-contains' '
+	git branch --no-contains feature_a --no-contains feature_b >actual &&
+	cat >expect <<-\EOF &&
+	  master
+	EOF
+	test_cmp expect actual
+'
+
+test_expect_success 'multiple branch --no-merged' '
+	git branch --no-merged next --no-merged master >actual &&
+	cat >expect <<-\EOF &&
+	  feature_b
+	EOF
+	test_cmp expect actual
+'
+
+test_expect_success 'branch --contains combined with --no-contains' '
+	git checkout master &&
+	git merge feature_a &&
+	git checkout next &&
+	git merge feature_b &&
+	git branch --contains feature_a --no-contains feature_b >actual &&
+	cat >expect <<-\EOF &&
+	  feature_a
+	  master
+	EOF
+	test_cmp expect actual
+'
+
+test_expect_success 'branch --merged combined with --no-merged' '
+	git branch --merged next --no-merged master >actual &&
+	cat >expect <<-\EOF &&
+	  feature_b
+	* next
+	EOF
+	test_cmp expect actual
 '
 
 test_done
